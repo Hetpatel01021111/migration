@@ -10,12 +10,16 @@
 #   df_fb = fetch_fb_migration_data("apikey.txt", ad_account_id="act_XXXXXXX")
 # ─────────────────────────────────────────────────────────────────────────────
 
-import requests
-import pandas as pd
-import numpy as np
-import time
-import json
 import os
+import json
+import time
+import numpy as np
+import pandas as pd
+import requests
+from dotenv import load_dotenv
+
+# Load variables from .env if present
+load_dotenv()
 
 
 # ── Facebook "Expats - Lived in [Country]" behavior IDs ───────────────────────
@@ -108,19 +112,33 @@ RATE_LIMIT_DELAY = 1.5  # seconds between calls (200 calls/hour ≈ 1 per 18s, w
 
 
 def load_access_token(filepath="apikey.txt"):
-    """Load Facebook access token from a text file."""
+    """
+    Load Facebook access token. 
+    Priority: 
+      1. Environment variable 'FACEBOOK_API'
+      2. Environment variable 'FACEBOOK_API_KEY'
+      3. Existing apikey.txt (fallback)
+    """
+    # 1. Check environment variables first
+    token = os.getenv("FACEBOOK_API") or os.getenv("FACEBOOK_API_KEY")
+    if token:
+        # print("✅ Using Facebook API key from environment variable.")
+        return token.strip()
+
+    # 2. Fallback to file for backwards compatibility
     filepath = os.path.abspath(filepath)
-    if not os.path.exists(filepath):
-        raise FileNotFoundError(
-            f"API key file not found: {filepath}\n"
-            f"Create a file with your Facebook access token."
-        )
-    with open(filepath, "r") as f:
-        token = f.read().strip()
-    if not token.startswith("EAA"):
-        print("⚠️  Warning: Token doesn't start with 'EAA'. "
-              "Make sure this is a valid Facebook access token.")
-    return token
+    if os.path.exists(filepath):
+        with open(filepath, "r") as f:
+            token = f.read().strip()
+        if token:
+            print(f"⚠️  Note: Loading token from {filepath}. Consider moving to .env.")
+            return token
+
+    # 3. Not found
+    raise ValueError(
+        "❌ Facebook Access Token not found.\n"
+        "Please add 'FACEBOOK_API' to your .env file or environment."
+    )
 
 
 def discover_behavior_ids(access_token, search_query="Lived in"):

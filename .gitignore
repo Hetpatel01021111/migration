@@ -26,7 +26,8 @@ wheels/
 .installed.cfg
 *.egg
 
-# Specific to this project
+# Secret/Config
+.env
 apikey.txt
 fb_data_snapshot.csv
 .DS_Store
