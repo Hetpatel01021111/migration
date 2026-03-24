@@ -120,42 +120,38 @@ print(f"  {'TOTAL':30s} → {total} origin countries")
 print(f"\n✅ Total migration corridors: {total} (origin → UAE)")
 
 
-# ── 2.2  Visualise the regional breakdown ─────────────────────────────────────
-# A sunburst chart showing the hierarchical structure of origin regions
+# ── 2.2  Visualise the regional breakdown (Matplotlib Donut Chart) ─────────────
+# Replaced Plotly Sunburst with Matplotlib Donut for robust static rendering
 
-labels = ["UAE (Destination)"]
-parents = [""]
-values = [0]
+# Data preparation for nested donut
+outer_labels = list(ORIGIN_REGIONS.keys())
+outer_sizes = [len(c) for c in ORIGIN_REGIONS.values()]
+inner_labels = [c for sublist in ORIGIN_REGIONS.values() for c in sublist]
+inner_sizes = [1] * len(inner_labels)
 
-for region, countries in ORIGIN_REGIONS.items():
-    labels.append(region)
-    parents.append("UAE (Destination)")
-    values.append(len(countries) * 10)  # scaled for visual area
-    for country in countries:
-        labels.append(country)
-        parents.append(region)
-        values.append(10)
+fig, ax = plt.subplots(figsize=(12, 12))
+size = 0.3
+cmap = plt.colormaps["tab20"]
+outer_colors = cmap(np.linspace(0, 1, len(outer_labels)))
+inner_colors = cmap(np.linspace(0, 1, len(inner_labels)))
 
-fig = go.Figure(go.Sunburst(
-    labels=labels,
-    parents=parents,
-    values=values,
-    branchvalues="total",
-    textfont=dict(size=11),
-    hovertemplate="<b>%{label}</b><extra></extra>"
-))
+# Outer ring (Regions)
+ax.pie(outer_sizes, radius=1, colors=outer_colors,
+       labels=outer_labels, labeldistance=0.85,
+       wedgeprops=dict(width=size, edgecolor='w'), 
+       textprops={'fontsize': 14, 'fontweight': 'bold'})
 
-fig.update_layout(
-    title={
-        "text": "🌍 UAE International Migration - Origin Region Segmentation",
-        "x": 0.5, "xanchor": "center", "font": {"size": 16}
-    },
-    margin=dict(t=60, b=0, l=0, r=0),
-    height=550
-)
-fig.write_image("out/01_regional_sunburst.png")
-fig.write_image("out/plot.png")
-print("\n✅ Sunburst chart rendered - all origin corridors are visible.")
+# Inner ring (Countries)
+ax.pie(inner_sizes, radius=1-size, colors=inner_colors,
+       wedgeprops=dict(width=size, edgecolor='w'))
+
+ax.set(aspect="equal")
+plt.title("🌍 UAE International Migration - Origin Region Segmentation", 
+          fontsize=18, fontweight="bold", pad=20)
+plt.savefig("out/01_regional_sunburst.png", dpi=150, bbox_inches='tight')
+plt.savefig("out/plot.png", dpi=150, bbox_inches='tight')
+plt.close()
+print("\n✅ Regional Donut chart rendered - all origin corridors are visible.")
 
 
 # ── 3.1  Set time range and random seed ───────────────────────────────────────
