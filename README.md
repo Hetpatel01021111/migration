@@ -107,10 +107,10 @@ The engine solves the **"Missing Middle"** problem. Registers (FCSC) are slow bu
 - **What it means**: Individual deep-dives for the 9 largest countries.
 - **Why it matters**: Allows for bilateral migration planning for specific large corridors.
 
-#### 15: 54-Corridor Performance Matrix
+#### 15: Full 54-Corridor Nowcast Summary
 ![15](out/15_all_corridors_circular_migration.png)
-- **What it means**: Condensed summary of growth across every single country.
-- **Why it matters**: Quick-look reference to find any country not shown in the Top 10.
+- **What it means**: A comprehensive horizontal bar chart of 2024 nowcasted stocks for all 54 origin countries, including 80% Bayesian credible intervals (error bars).
+- **Why it matters**: It is the single most complete view of the nation's migrant demographics, allowing comparison of any country at a glance.
 
 ---
 

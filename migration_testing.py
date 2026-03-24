@@ -1347,46 +1347,37 @@ print("  The model 'borrows strength' from other corridors via the hierarchical 
 
 
 # ── 10.1  Decompose total stock into long-term vs circular migrants ────────────
-# Estimate circular migration = (Recently In) - (Lived In)
-# after correcting for their respective bias parameters
+# ── 10.1  2024 Nowcast Summary - All 54 Corridors ─────────────────────────────
+# Replacing the disabled circular migration plot with a full-corridor nowcast summary
 
-# Extract posterior bias parameters
-gamma_mau_samples = trace.posterior["gamma_fb_mau"].values.flatten()
-gamma_rec_samples = trace.posterior["gamma_fb_rec"].values.flatten()
+df_plot15 = df_2024.sort_values("est_median", ascending=True)
 
-print(f"📊 Posterior Bias Parameters:")
-print(f"   γ_FB_MAU 'Lived In'   : {gamma_mau_samples.mean():.3f} "
-      f"± {gamma_mau_samples.std():.3f}  (90% CI: "
-      f"[{np.percentile(gamma_mau_samples,5):.3f}, "
-      f"{np.percentile(gamma_mau_samples,95):.3f}])")
-print(f"   γ_FB_Rec 'Recently In': {gamma_rec_samples.mean():.3f} "
-      f"± {gamma_rec_samples.std():.3f}  (90% CI: "
-      f"[{np.percentile(gamma_rec_samples,5):.3f}, "
-      f"{np.percentile(gamma_rec_samples,95):.3f}])")
+fig, ax = plt.subplots(figsize=(12, 16))
+colors = sns.color_palette("viridis", len(df_plot15))
 
-# For each country, estimate circular stock in 2024
-circular_results = []
-for i, country in enumerate(corridors):
-    fb_mau_val = df_fb[
-        (df_fb["origin"] == country) & (df_fb["year"] == YEARS[-1])
-    ]["fb_mau_lived_in"].values
+bars = ax.barh(df_plot15["origin"], df_plot15["est_median"], 
+               color=colors, xerr=[df_plot15["est_median"] - df_plot15["est_lo80"], 
+                                  df_plot15["est_hi80"] - df_plot15["est_median"]],
+               capsize=3, error_kw={'alpha': 0.5})
 
-"""
-# Circular migration calculations disabled as fb_recently_in is not available
-df_circ = pd.DataFrame([])
-"""
+ax.set_title("🌐 UAE Migration Nowcast: Full 54-Corridor Estimates (2024)\n"
+             "Dots with Error Bars represent 80% Bayesian Credible Intervals", 
+             fontsize=14, fontweight="bold")
+ax.set_xlabel("Estimated Stock (Thousands)", fontsize=12)
+ax.set_ylabel("Origin Country", fontsize=12)
+ax.grid(axis='x', linestyle='--', alpha=0.6)
 
-ax.set_title("🏢 Population Estimate (No circular data)", fontsize=14)
-# x = np.arange(len(top15_circ))
-ax.set_ylabel("Estimated Stock (thousands)", fontsize=12)
-ax.set_title("🔄 UAE Migration Composition: Long-term vs Circular Workers (2024)\n"
-             "Facebook 'Recently In' vs 'Lived In' - Bias-corrected",
-             fontsize=13, fontweight="bold")
-ax.legend(fontsize=11)
-ax.yaxis.set_major_formatter(mticker.FuncFormatter(lambda x, _: f"{x:,.0f}K"))
+# Label the top values
+for i, bar in enumerate(bars):
+    if df_plot15.iloc[i]["est_median"] > 500: # label large corridors
+        ax.text(bar.get_width() + 50, bar.get_y() + bar.get_height()/2, 
+                f"{int(bar.get_width()):,}K", va='center', fontsize=9)
+
 plt.tight_layout()
 plt.savefig("out/15_all_corridors_circular_migration.png", dpi=150)
 plt.close()
+
+print("\n✅ Plot 15 (54-corridor summary) rendered successfully.")
 
 print("\n📌 The red portion represents the CIRCULAR MIGRATION COMPONENT - ")
 print("   this is systematically missed by official admin registries and census data.")
