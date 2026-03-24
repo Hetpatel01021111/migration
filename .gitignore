@@ -1,0 +1,35 @@
+# Environments
+.venv/
+env/
+venv/
+ENV/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Specific to this project
+apikey.txt
+fb_data_snapshot.csv
+.DS_Store
+
+# We WANT to keep the out/ results if the user wants "everything perfect" there
+# but let's make sure it's not too giant. 21 PNGs are okay.
